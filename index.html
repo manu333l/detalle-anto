@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Un detalle para Antonella</title>
+
+    <style>
+        :root {
+            --color-fondo: #f9f4f2;
+            --color-sobre: #e2b4bd;
+            --color-sobre-tapa: #d39da8;
+            --color-carta: #ffffff;
+            --color-texto: #5d5d5d;
+            --color-petalo: #f2c6de;
+            --color-tallo: #a3b18a;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--color-fondo);
+            font-family: 'Georgia', serif;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            perspective: 1000px;
+        }
+
+        .envelope {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--color-sobre);
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+
+        .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 100px solid var(--color-sobre-tapa);
+            transform-origin: top;
+            transition: transform .7s ease;
+            z-index: 4;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .letter {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            width: 270px;
+            height: 170px;
+            background: white;
+            padding: 25px;
+            box-sizing: border-box;
+            border-radius: 8px;
+            transition: transform .9s cubic-bezier(.175, .885, .32, 1.275), opacity .4s;
+            z-index: 1;
+            opacity: 0;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .letter b {
+            color: #d39da8;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        #mensaje {
+            font-size: .85rem;
+            color: var(--color-texto);
+            line-height: 1.5;
+            font-style: italic;
+        }
+
+        .open .flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .open .letter {
+            opacity: 1;
+            transform: translateY(-160px) translateX(-110px) rotate(-4deg);
+            z-index: 10;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        #canvasFlor {
+            position: absolute;
+            bottom: -80px;
+            left: 65%;
+            z-index: 5;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        button {
+            margin-top: 60px;
+            padding: 12px 35px;
+            border: 1px solid var(--color-sobre-tapa);
+            background: transparent;
+            color: var(--color-sobre-tapa);
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: .9rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: .3s;
+        }
+
+        button:hover {
+            background: var(--color-sobre-tapa);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container" id="sobreContenedor">
+        <canvas id="canvasFlor" width="400" height="500"></canvas>
+        <div class="flap"></div>
+        <div class="letter">
+            <b>Hola Antooo</b>
+            <div id="mensaje"></div>
+        </div>
+        <div class="envelope"></div>
+    </div>
+
+    <button id="btn" onclick="abrir()">Ver detalle</button>
+
+    <script>
+        const texto = "Me gustó enseñarte mis proyectos, así que usé un poco de código para este detalle. Espero que te guste esta flor 🌸";
+        let index = 0;
+
+        function escribir() {
+            if (index < texto.length) {
+                document.getElementById("mensaje").innerHTML += texto.charAt(index);
+                index++;
+                setTimeout(escribir, 40);
+            }
+        }
+
+        function abrir() {
+            document.getElementById("sobreContenedor").classList.add("open");
+            document.getElementById("btn").style.opacity = "0";
+            setTimeout(() => document.getElementById("btn").style.display = "none", 400);
+
+            const cvs = document.getElementById("canvasFlor");
+            cvs.style.opacity = "1";
+
+            setTimeout(animarFlor, 600);
+            setTimeout(escribir, 1400);
+        }
+
+        function animarFlor() {
+        const canvas = document.getElementById("canvasFlor");
+        const ctx = canvas.getContext("2d");
+        let t = 0;
+
+        function dibujar() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const cx = 150;
+            const cy = canvas.height;
+            const alturaTallo = 320 * t;
+            const fcy = cy - alturaTallo;
+            const fx = cx + 30;
+
+            const grdTallo = ctx.createLinearGradient(cx, cy, cx + 50, cy);
+            grdTallo.addColorStop(0, "#4f5b3d");
+            grdTallo.addColorStop(0.5, "#a3b18a");
+            grdTallo.addColorStop(1, "#6b705c");
+
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.quadraticCurveTo(cx + 50, cy - alturaTallo / 2, fx, fcy);
+            ctx.strokeStyle = grdTallo;
+            ctx.lineWidth = 6 * t;
+            ctx.lineCap = "round";
+            ctx.stroke();
+
+            if (t > 0.3) {
+                dibujarHojaRealista(ctx, cx + 38, cy - 140 * t, 0.4, (t - 0.3) * 1.5);
+                dibujarHojaRealista(ctx, cx + 15, cy - 220 * t, -0.6, (t - 0.3) * 1.2);
+            }
+
+            if (t > 0.5) {
+                const p = (t - 0.5) * 2;
+                const radioMax = 65 * p;
+
+                for (let i = 0; i < 12; i++) {
+                    dibujarPetaloRealista(ctx, fx, fcy, (Math.PI * 2 / 12) * i, radioMax, "#d39da8", "#e2b4bd");
+                }
+                
+                if (p > 0.4) {
+                    for (let i = 0; i < 10; i++) {
+                        dibujarPetaloRealista(ctx, fx, fcy, (Math.PI * 2 / 10) * i + 0.4, radioMax * 0.7, "#f2c6de", "#f9dbe8");
+                    }
+                }
+
+                if (p > 0.7) {
+                    for (let i = 0; i < 8; i++) {
+                        dibujarPetaloRealista(ctx, fx, fcy, (Math.PI * 2 / 8) * i + 0.2, radioMax * 0.4, "#ffffff", "#f2c6de");
+                    }
+                }
+
+                ctx.beginPath();
+                ctx.arc(fx, fcy, 10 * p, 0, Math.PI * 2);
+                const grdCentro = ctx.createRadialGradient(fx, fcy, 0, fx, fcy, 10 * p);
+                grdCentro.addColorStop(0, "#fefae0");
+                grdCentro.addColorStop(1, "#e9edc9");
+                ctx.fillStyle = grdCentro;
+                ctx.fill();
+                if (p > 0.8) {
+                    for (let i = 0; i < 12; i++) {
+                        const ang = (Math.PI * 2 / 12) * i;
+                        const xE = fx + Math.cos(ang) * (15 * p);
+                        const yE = fcy + Math.sin(ang) * (15 * p);
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(fx, fcy);
+                        ctx.lineTo(xE, yE);
+                        ctx.strokeStyle = "#d4a373";
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                        
+                        ctx.beginPath();
+                        ctx.arc(xE, yE, 2 * p, 0, Math.PI * 2);
+                        ctx.fillStyle = "#e9edc9";
+                        ctx.fill();
+                    }
+                }
+            }
+
+            if (t < 1) {
+                t += 0.007;
+                requestAnimationFrame(dibujar);
+            }
+        }
+
+        function dibujarPetaloRealista(ctx, x, y, ang, radio, colorBase, colorLuz) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(ang);
+            
+            const grd = ctx.createRadialGradient(0, 0, 0, 0, -radio/2, radio);
+            grd.addColorStop(0, colorBase);
+            grd.addColorStop(1, colorLuz);
+
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(-radio * 0.8, -radio, radio * 0.8, -radio, 0, 0);
+            ctx.fillStyle = grd;
+            ctx.fill();
+            
+            ctx.strokeStyle = "rgba(0,0,0,0.05)";
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+
+        function dibujarHojaRealista(ctx, x, y, ang, p) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(ang);
+            
+            const grdHoja = ctx.createLinearGradient(0, 0, 40 * p, 0);
+            grdHoja.addColorStop(0, "#4f5b3d");
+            grdHoja.addColorStop(1, "#a3b18a");
+
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(40 * p, -25 * p, 40 * p, 25 * p, 0, 5 * p);
+            ctx.fillStyle = grdHoja;
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(35 * p, 0);
+            ctx.strokeStyle = "rgba(255,255,255,0.2)";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+
+        dibujar();
+    }
+
+    </script>
+</body>
+</html>
