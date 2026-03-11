@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Una pregunta para ti</title>
+
+    <style>
+        :root {
+            --color-cine: #ff6b81;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100dvh; /* Altura dinámica para iPhone 16 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #ffd6e0, #ffe8f0);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            text-align: center;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        /* CLAQUETA INICIAL */
+        .clapper-container {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeOut 0.8s ease forwards;
+            animation-delay: 2.5s;
+            z-index: 10;
+        }
+
+        .clapper {
+            width: 160px;
+            height: 100px;
+            background: #222;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .top {
+            width: 160px;
+            height: 30px;
+            background: repeating-linear-gradient(45deg, white, white 15px, black 15px, black 30px);
+            position: absolute;
+            top: -15px;
+            left: 0;
+            transform-origin: left bottom;
+            animation: clap 0.8s ease infinite;
+            border-radius: 5px;
+        }
+
+        @keyframes clap {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-35deg); }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        /* CONTENIDO PRINCIPAL */
+        .container {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px 20px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 85%;
+            max-width: 320px;
+            z-index: 2;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        h2 {
+            color: #333;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+        }
+
+        .botones {
+            margin-top: 20px;
+            position: relative;
+            height: 150px; /* Espacio para que el botón NO se mueva */
+            width: 100%;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #si {
+            background: var(--color-cine);
+            color: white;
+            left: 50%;
+            transform: translateX(-110%);
+            z-index: 5;
+        }
+
+        #no {
+            background: #eee;
+            color: #888;
+            left: 50%;
+            transform: translateX(10%);
+        }
+
+        /* TICKET FINAL */
+        #ticket {
+            display: none;
+            margin-top: 20px;
+            background: #fffdf2;
+            border: 2px dashed #d39da8;
+            border-radius: 15px;
+            padding: 15px;
+            animation: ticketAnim 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        #ticket h3 { margin: 0 0 10px 0; color: #ff6b81; }
+        #ticket p { margin: 5px 0; font-size: 14px; color: #555; border-bottom: 1px solid #eee; padding-bottom: 2px;}
+
+        @keyframes ticketAnim {
+            0% { transform: translateY(50px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        #mensaje {
+            margin-top: 15px;
+            font-size: 1.1rem;
+            color: #ff6b81;
+            font-weight: bold;
+        }
+
+        /* PALOMITAS */
+        .popcorn {
+            position: absolute;
+            font-size: 25px;
+            user-select: none;
+            pointer-events: none;
+            z-index: 1;
+            animation: caer linear infinite;
+        }
+
+        @keyframes caer {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="clapper-container" id="claqueta">
+        <div class="clapper">
+            <div class="top"></div>
+        </div>
+        <p style="color: #444; font-weight: bold; margin-top: 15px;">Preparando algo especial... 🎬</p>
+    </div>
+
+    <div class="container" id="contenido">
+        <h2 id="titulo">Anto, ¿quieres ir al cine conmigo? 🎬🍿</h2>
+
+        <div class="botones" id="areaBotones">
+            <button id="si" onclick="aceptar()">Sí 😊</button>
+            <button id="no">No 😅</button>
+        </div>
+
+        <div id="ticket">
+            <h3>🎟️ CINE PASS</h3>
+            <p><strong>PARA:</strong> Antonella</p>
+            <p><strong>DE:</strong> Freddy</p>
+            <p><strong>CITA:</strong> Película + Palomitas 🍿</p>
+        </div>
+        
+        <div id="mensaje"></div>
+    </div>
+
+    <script>
+        // MOSTRAR CONTENIDO
+        setTimeout(() => {
+            document.getElementById("claqueta").style.display = "none";
+            document.getElementById("contenido").style.display = "block";
+            iniciarPalomitas();
+        }, 3200);
+
+        // BOTÓN NO QUE ESCAPA
+        const botonNo = document.getElementById("no");
+        const area = document.getElementById("areaBotones");
+
+        // En iPhone el 'mouseover' no existe, usamos 'touchstart'
+        botonNo.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            moverBoton();
+        });
+        
+        botonNo.addEventListener("mouseover", moverBoton);
+
+        function moverBoton() {
+            const ancho = area.clientWidth - botonNo.clientWidth;
+            const alto = area.clientHeight - botonNo.clientHeight;
+
+            const x = Math.max(0, Math.random() * ancho);
+            const y = Math.max(0, Math.random() * alto);
+
+            botonNo.style.left = x + "px";
+            botonNo.style.top = y + "px";
+            botonNo.style.transform = "none"; // Quitamos el centrado inicial
+        }
+
+        // ACEPTAR CITA
+        function aceptar() {
+            document.getElementById("areaBotones").style.display = "none";
+            document.getElementById("titulo").style.display = "none";
+            
+            const mensaje = document.getElementById("mensaje");
+            mensaje.innerHTML = "¡Perfecto! 😌🍿<br>Ya tenemos plan.";
+            
+            const ticket = document.getElementById("ticket");
+            ticket.style.display = "block";
+        }
+
+        // LLUVIA DE PALOMITAS
+        function iniciarPalomitas() {
+            setInterval(() => {
+                const palomita = document.createElement("div");
+                palomita.classList.add("popcorn");
+                palomita.innerHTML = "🍿";
+                palomita.style.left = Math.random() * 100 + "vw";
+                palomita.style.animationDuration = (Math.random() * 3 + 2) + "s";
+                document.body.appendChild(palomita);
+
+                setTimeout(() => palomita.remove(), 5000);
+            }, 500);
+        }
+    </script>
+</body>
+</html>
